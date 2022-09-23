@@ -1,7 +1,11 @@
-from core.matrices import Mat4, Mat3
-from core.vectors import Vec3, Vec2
-import core.matrices as matrices
-import core.vectors as vectors
+import numpy
+
+from PyGraphics.vmath.vectors import cross
+from matrices import Mat4, Mat3
+import matrices
+from vectors import Vec3, Vec2
+#import core.matrices as matrices
+import vectors
 import math
 
 
@@ -497,7 +501,12 @@ def point_to_line_dist(point: Vec3, origin: Vec3, direction: Vec3) -> float:
     :arg direction направление луча (единичный вектор)
     :return расстояние между точкой и прямой
     """
-    pass
+    temp = Vec3.cross(direction, (origin-point))
+    return math.sqrt(Vec3.dot(temp, temp)) / math.sqrt(Vec3.dot(direction, direction))
+
+
+#print('qw')
+#print(point_to_line_dist(Vec3(0, 0, 0), Vec3(1, 1, 0), Vec3(0, 0, 1)))
 
 
 def line_to_line_dist(origin_1: Vec3, direction_1: Vec3, origin_2: Vec3, direction_2: Vec3) -> float:
@@ -508,8 +517,9 @@ def line_to_line_dist(origin_1: Vec3, direction_1: Vec3, origin_2: Vec3, directi
     :arg direction_2 направление второго луча (единичный вектор)
     :return расстояние между первой и второй прямой
     """
-    pass
-
+    temp = Vec3.cross(direction_1, direction_2) * (origin_2-origin_1)
+    temp1 = Vec3.cross(direction_1, direction_2)
+    return math.sqrt(Vec3.dot(temp, temp))/math.sqrt(Vec3.dot(temp1, temp1))
 
 def plane_to_point_dist(r_0: Vec3, n: Vec3, point: Vec3) -> float:
     # (r - r_0, n) = 0
@@ -519,7 +529,6 @@ def plane_to_point_dist(r_0: Vec3, n: Vec3, point: Vec3) -> float:
     :arg point точка для которой ищем расстояние
     :return расстояние между точкой и плоскостью
     """
-    pass
 
 
 def ray_plane_intersect(r_0: Vec3, n: Vec3, origin: Vec3, direction: Vec3) -> (bool, float):
@@ -567,3 +576,5 @@ def ray_triangle_intersect(p1: Vec3, p2: Vec3, p3: Vec3, origin: Vec3, direction
        :return длина луча вдоль его направления до пересечения с треугольником, если оно
     """
     pass
+
+
