@@ -1,6 +1,11 @@
-from core.matrices import Mat4, Mat3
-from core.vectors import Vec3, Vec2
-import core.matrices as matrices
+import numpy
+
+from PyGraphics.vmath.vectors import cross
+from matrices import Mat4, Mat3
+import matrices
+from vectors import Vec3, Vec2
+#import core.matrices as matrices
+import vectors
 import math
 
 
@@ -137,9 +142,9 @@ def look_at(target: Vec3, eye: Vec3, up: Vec3 = Vec3(0, 1, 0)) -> Mat4:
     """
     zaxis = target - eye  # The "forward" vector.
     zaxis.normalize()
-    xaxis = Vec3.cross(up, zaxis)  # The "right" vector.
+    xaxis = vectors.cross(up, zaxis)  # The "right" vector.
     xaxis.normalize()
-    yaxis = Vec3.cross(zaxis, xaxis)  # The "up" vector.
+    yaxis = vectors.cross(zaxis, xaxis)  # The "up" vector.
 
     return Mat4(xaxis.x, -yaxis.x, zaxis.x, eye.x,
                 -xaxis.y, -yaxis.y, zaxis.y, eye.y,
@@ -422,7 +427,7 @@ def quadratic_bezier_patch(p1: Vec3, p2: Vec3, p3: Vec3,
                p4 * phi2 * dp1 + p5 * phi2 * dp2 + p6 * phi2 * dp3 + \
                p7 * phi3 * dp1 + p8 * phi3 * dp2 + p9 * phi3 * dp3
 
-    return [p, Vec3.cross(dv, du).normalize()]
+    return [p, vectors.cross(dv, du).normalize()]
 
 
 def cubic_bezier_patch(p1: Vec3, p2: Vec3, p3: Vec3, p4: Vec3,
@@ -496,7 +501,8 @@ def point_to_line_dist(point: Vec3, origin: Vec3, direction: Vec3) -> float:
     :arg direction направление луча (единичный вектор)
     :return расстояние между точкой и прямой
     """
-    pass
+    temp = Vec3.cross(direction, (origin-point))
+    return math.sqrt(Vec3.dot(temp, temp)) / math.sqrt(Vec3.dot(direction, direction))
 
 
 def line_to_line_dist(origin_1: Vec3, direction_1: Vec3, origin_2: Vec3, direction_2: Vec3) -> float:
@@ -507,8 +513,9 @@ def line_to_line_dist(origin_1: Vec3, direction_1: Vec3, origin_2: Vec3, directi
     :arg direction_2 направление второго луча (единичный вектор)
     :return расстояние между первой и второй прямой
     """
-    pass
-
+    temp = Vec3.cross(direction_1, direction_2) * (origin_2-origin_1)
+    temp1 = Vec3.cross(direction_1, direction_2)
+    return math.sqrt(Vec3.dot(temp, temp))/math.sqrt(Vec3.dot(temp1, temp1))
 
 def plane_to_point_dist(r_0: Vec3, n: Vec3, point: Vec3) -> float:
     # (r - r_0, n) = 0
@@ -518,7 +525,8 @@ def plane_to_point_dist(r_0: Vec3, n: Vec3, point: Vec3) -> float:
     :arg point точка для которой ищем расстояние
     :return расстояние между точкой и плоскостью
     """
-    pass
+    kf_d = -Vec3.dot(n, r_0)
+    return (Vec3.dot(n, point) + kf_d)/math.sqrt(n[0]**2 + n[1]**2 + n[2]**2)
 
 
 def ray_plane_intersect(r_0: Vec3, n: Vec3, origin: Vec3, direction: Vec3) -> (bool, float):
@@ -530,7 +538,10 @@ def ray_plane_intersect(r_0: Vec3, n: Vec3, origin: Vec3, direction: Vec3) -> (b
     :arg direction направление луча (единичный вектор)
     :return длина луча вдоль его направления до пересечения с плоскостью
     """
-    pass
+    kf_d = -Vec3.dot(n, r_0)
+    h = (Vec3.dot(n, origin) + kf_d)/math.sqrt(n[0]**2 + n[1]**2 + n[2]**2)
+    SINang_n_h = abs(Vec3.dot(n, direction))/ (math.sqrt(Vec3.dot(direction, direction))*math.sqrt(Vec3.dot(n, n)))
+    return h/SINang_n_h
 
 
 def ray_sphere_intersect(r_0: Vec3, r: float, origin: Vec3, direction: Vec3) -> (bool, float, float):
@@ -566,3 +577,5 @@ def ray_triangle_intersect(p1: Vec3, p2: Vec3, p3: Vec3, origin: Vec3, direction
        :return длина луча вдоль его направления до пересечения с треугольником, если оно
     """
     pass
+
+
